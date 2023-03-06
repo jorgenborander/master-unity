@@ -22,9 +22,16 @@ public class MySheepRandomizer : Randomizer
 
     private GameObject currentInstanceSheep;
 
+    public CategoricalParameter<GameObject> Tree;
+
+    private GameObject currentInstanceTree;
+
 
     protected override void OnIterationStart()
     {   
+        currentInstanceTree = GameObject.Instantiate(Tree.Sample());
+        var d = getRandomPosition();
+        currentInstanceTree.transform.position = d;
 
         currentInstanceSheep = GameObject.Instantiate(Sau.Sample());
         var p = getRandomPosition();
@@ -34,6 +41,7 @@ public class MySheepRandomizer : Randomizer
     protected override void OnIterationEnd()
     {
         GameObject.Destroy(currentInstanceSheep);
+        GameObject.Destroy(currentInstanceTree);
     }
 
     private Vector3 getRandomPosition()

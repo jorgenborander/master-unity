@@ -591,6 +591,7 @@ GameObject:
   - component: {fileID: 550189295927012816}
   - component: {fileID: 664098733294972978}
   - component: {fileID: -742150988759747161}
+  - component: {fileID: -2273296606737804695}
   m_Layer: 0
   m_Name: Sheep_Test
   m_TagString: Untagged
@@ -757,6 +758,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a2c508b583ec41718e8d595741bec93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-2273296606737804695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6684365565972185061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8943e41c7c34facb177a5decc1b2aef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationClips:
+    collapsed: 0
+    probabilities:
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    - 0.04
+    uniform: 1
+    m_Categories:
+    - {fileID: 7400000, guid: 6faa9b7a7f1711948b2583cea1af23c7, type: 3}
+    - {fileID: 7400000, guid: 9d92cc120dbaa214bbdec63d3e18c1b4, type: 3}
+    - {fileID: 7400000, guid: d7edb691bff3dbd49bbc870a1ce3ed02, type: 3}
+    - {fileID: 7400000, guid: 2eb5a28349aa9244f8bc169b12989dc7, type: 3}
+    - {fileID: 7400000, guid: 96dc5041347c8f04886391b5fcfabac7, type: 3}
+    - {fileID: 7400000, guid: 50d85ba9004d9f2469177b0f86691128, type: 3}
+    - {fileID: 7400000, guid: 2b3b5a29a6b7d4943acb2328587a8d19, type: 3}
+    - {fileID: 7400000, guid: 881c2fd90793e5443b7fabd132f87763, type: 3}
+    - {fileID: 7400000, guid: 4d29fdb0a0210b041bb7da8cec11949b, type: 3}
+    - {fileID: 7400000, guid: 1cf93b110dfb7cb478c9e6ec65fed2bb, type: 3}
+    - {fileID: 7400000, guid: 01cf6f19c48d1414ebe6993a5f1ef3b6, type: 3}
+    - {fileID: 7400000, guid: b7245dd1ab030764b917a9108c8dc689, type: 3}
+    - {fileID: 7400000, guid: 39edce1352ff7d54f92f5582fa7be260, type: 3}
+    - {fileID: 7400000, guid: defb81e38dfe1b246a4515d40f0137ee, type: 3}
+    - {fileID: 7400000, guid: 02ff7065cc1f87643a2ae384c1ad774e, type: 3}
+    - {fileID: 7400000, guid: 58c17c5d8841c6b43ac342e1ecf27cfb, type: 3}
+    - {fileID: 7400000, guid: 2eb00b4c1be478f4abffab385846503c, type: 3}
+    - {fileID: 7400000, guid: 72ce9b956dc5d824c9d7f98ff362b2d2, type: 3}
+    - {fileID: 7400000, guid: f2f7ff4c942c4b5459add2331905bfb2, type: 3}
+    - {fileID: 7400000, guid: fbed7497c5a999e4285bc0304e4095eb, type: 3}
+    - {fileID: 7400000, guid: 79775f7ac86bc794e89aa9ea64c35c7c, type: 3}
+    - {fileID: 7400000, guid: 3cdfc7f0b51048f44aa02eba04be76de, type: 3}
+    - {fileID: 7400000, guid: e067ccb3c5958be4893b16adfad9ae70, type: 3}
+    - {fileID: 7400000, guid: ea384e3b83aaf484596f876931d69474, type: 3}
+    - {fileID: 7400000, guid: c30475bc8f067c44fa65f6a7a8d8ca9e, type: 3}
+  applyRootMotion: 0
 --- !u!1 &6684365565972185063
 GameObject:
   m_ObjectHideFlags: 0
