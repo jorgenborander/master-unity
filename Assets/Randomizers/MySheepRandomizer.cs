@@ -22,53 +22,13 @@ public class MySheepRandomizer : Randomizer
 
     private GameObject currentInstanceSheep;
 
-    int count = 1;
-
 
     protected override void OnIterationStart()
     {   
-        count += 1;
-        var taggedObjects = tagManager.Query<CameraTag>();
 
-        foreach (var taggedObject in taggedObjects){
-            var camera = taggedObject.GetComponent<Camera>();
-
-            currentInstanceSheep = GameObject.Instantiate(Sau.Sample());
-            var p = getRandomPosition();
-            currentInstanceSheep.transform.position = p;
-
-            var renderer = currentInstanceSheep.GetComponent<Renderer>();
-            var bounds = renderer.bounds;
-
-            var imgHight = 1080;
-            var imgWidth = 1920;
-
-            var yxMin = (bounds.center) - (bounds.extents);
-            var yxMax = (bounds.center) + (bounds.extents);
-
-            var centerBounds = camera.WorldToScreenPoint(bounds.center);
-
-            Vector3 minPos = camera.WorldToScreenPoint(yxMin);
-            Vector3 maxPos = camera.WorldToScreenPoint(yxMax);
-
-            var centerX = centerBounds.x / imgWidth;
-            var centerY = 1 - (centerBounds.y / imgHight);
-
-            var pixelWidth = (maxPos.x - minPos.x) / imgWidth;
-            var pixelHight = (maxPos.y - minPos.y) / imgHight;
-
-            string path = "/Users/jorgen/Documents/Skole/NTNU/Unity/rgb_"+count+".txt";
-
-            using(var sw = new StreamWriter(path, true))
-            {
-                sw.WriteLine("0 " + centerX + " " + centerY + " " + pixelWidth + " " + pixelHight);
-            }
-
-
-            //Debug.Log("0 " + centerX + " " + centerY + " " + pixelWidth + " " + pixelHight);
-
-
-        }
+        currentInstanceSheep = GameObject.Instantiate(Sau.Sample());
+        var p = getRandomPosition();
+        currentInstanceSheep.transform.position = p;
     }
 
     protected override void OnIterationEnd()
