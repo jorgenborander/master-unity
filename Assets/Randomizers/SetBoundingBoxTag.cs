@@ -48,8 +48,10 @@ public class SetBoundingBox : Randomizer
 
                 var pixelWidth = (maxPos.x - minPos.x) / imgWidth;
                 var pixelHight = (maxPos.y - minPos.y) / imgHight;
+                
+                System.IO.Directory.CreateDirectory("Generated/BoundingBoxes");
 
-                string path = "/Users/jorgen/Documents/Skole/NTNU/Unity/rgb_"+count+".txt";
+                string path = "./Generated/BoundingBoxes/rgb_"+count+".txt";
 
                 using(var sw = new StreamWriter(path, true))
                 {
