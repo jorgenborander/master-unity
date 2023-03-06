@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Perception.Randomization.Parameters;
@@ -19,21 +20,60 @@ public class MySheepRandomizer : Randomizer
 
     public CategoricalParameter<GameObject> Sau;
 
-    public CategoricalParameter<GameObject> Trees;
+    private GameObject currentInstanceSheep;
 
-    private GameObject currentInstance;
-    
+    int count = 1;
+
 
     protected override void OnIterationStart()
-    {
-        var currentInstance = GameObject.Instantiate(Sau.Sample());
-        var p = getRandomPosition();
-        currentInstance.transform.position = p;
+    {   
+        count += 1;
+        var taggedObjects = tagManager.Query<CameraTag>();
+
+        foreach (var taggedObject in taggedObjects){
+            var camera = taggedObject.GetComponent<Camera>();
+
+            currentInstanceSheep = GameObject.Instantiate(Sau.Sample());
+            var p = getRandomPosition();
+            currentInstanceSheep.transform.position = p;
+
+            var renderer = currentInstanceSheep.GetComponent<Renderer>();
+            var bounds = renderer.bounds;
+
+            var imgHight = 1080;
+            var imgWidth = 1920;
+
+            var yxMin = (bounds.center) - (bounds.extents);
+            var yxMax = (bounds.center) + (bounds.extents);
+
+            var centerBounds = camera.WorldToScreenPoint(bounds.center);
+
+            Vector3 minPos = camera.WorldToScreenPoint(yxMin);
+            Vector3 maxPos = camera.WorldToScreenPoint(yxMax);
+
+            var centerX = centerBounds.x / imgWidth;
+            var centerY = 1 - (centerBounds.y / imgHight);
+
+            var pixelWidth = (maxPos.x - minPos.x) / imgWidth;
+            var pixelHight = (maxPos.y - minPos.y) / imgHight;
+
+            string path = "/Users/jorgen/Documents/Skole/NTNU/Unity/rgb_"+count+".txt";
+
+            using(var sw = new StreamWriter(path, true))
+            {
+                sw.WriteLine("0 " + centerX + " " + centerY + " " + pixelWidth + " " + pixelHight);
+            }
+
+
+            //Debug.Log("0 " + centerX + " " + centerY + " " + pixelWidth + " " + pixelHight);
+
+
+        }
     }
 
     protected override void OnIterationEnd()
     {
-        GameObject.Destroy(currentInstance);
+        GameObject.Destroy(currentInstanceSheep);
     }
 
     private Vector3 getRandomPosition()
