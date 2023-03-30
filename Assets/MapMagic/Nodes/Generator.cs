@@ -141,6 +141,7 @@ namespace MapMagic.Nodes
 	/// Passes the current graph commands to sub graph(s)
 	{
 		Graph SubGraph { get; }
+		TileData SubData (TileData parent);  //clusters have non-hierarchial sub-data
 		Expose.Override Override { get; set; }
 	}
 
@@ -168,10 +169,11 @@ namespace MapMagic.Nodes
 	public interface ICustomClear 
 	/// Performs additional actions before clearing (like clearing sub-datas)
 	{
-		void OnClearing (Graph graph, TileData data, ref bool isReady);  //calls when clearing all nodes, true if this node is changed
+		void OnClearing (Graph graph, TileData data, ref bool isReady, bool totalRebuild=false);  //calls when clearing all nodes, true if this node is changed
 		//Not that regular change check if still performed on node
 		//isReady: this call happens before marking ready in data, so isReady = default ready check (inlets, portals, etc).
 		//Setting isReady to true will NOT mark this generator as ready on clear (while setting to false will)
+		//totalRebuild: some nodes like Cluster require knowing whether user pressed "Rebuild" to do some flush actions on clear
 
 		//void ClearDirectly (TileData data);  //Called by graph if gen field was changed. Will call data.ClearReady(gen) beforehand anyway
 		//void ClearRecursive (TileData data);  //Called by graph on clearing recursive (no matter ready or not). Inlets are already cleared to this moment
@@ -237,8 +239,10 @@ namespace MapMagic.Nodes
 
 		public ulong version; //increment with GUI each time any parameter change to compare with data's last generated version to see if it's ready
 
+		#if MM_DEBUG
 		public double draftTime;
 		public double mainTime;
+		#endif
 
 		public Vector2 guiPosition;
 		public Vector2 guiSize;  //to add this node to group

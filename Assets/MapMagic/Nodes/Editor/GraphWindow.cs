@@ -60,7 +60,7 @@ namespace MapMagic.Nodes.GUI
 			{
 				MapMagicObject mmo = selectedGameObj.GetComponent<MapMagicObject>();
 				if (mmo != null && mmo.ContainsGraph(graph)) return mmo;
-				//we can't assign ClusterAsset same way! Add code for it
+				//we can't assign ClusterAsset same way! Add code for it 
 			}
 
 			//looking in all objects (only on scene reload or selection change)

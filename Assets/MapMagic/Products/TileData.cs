@@ -269,7 +269,6 @@ namespace MapMagic.Products
 			}
 
 
-
 			public string[] DebugReadyVar => DebugReady(Graph.debugGraph, false);
 			public string[] DebugReady (Graph rootGraph, bool useGraphName=true)
 			/// Returns the names of graphs, generators and layers that are marked as ready
@@ -376,7 +375,6 @@ namespace MapMagic.Products
 			public int ProductsCount  =>  products.Count;
 
 			public void ClearProducts ()  => products.Clear();
-
 
 			public string[] DebugProductsVar => DebugProducts(Graph.debugGraph, false);
 			public string[] DebugProducts (Graph rootGraph, bool useGraphName=true)
@@ -656,20 +654,23 @@ namespace MapMagic.Products
 					subData.Remove(gen, inSubs:inSubs);
 		}
 
-		public void RemoveNotContained (Graph graph, bool inSubs=false)
-		{
-			//TODO: can return System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
 
+		public void ClearStray (Graph graph, bool inSubs=false)
+		/// Clears products that are not in graph
+		/// Performance checked: 40ms per 1000 iterations on TutorialSplines graph
+		{
 			HashSet<ulong> unitsIds = new HashSet<ulong>();
 			foreach (IUnit unit in graph.AllUnits())
 				unitsIds.Add(unit.Id);
 
-			bool NotContainedId (ulong id) => !unitsIds.Contains(id);
+			lastVersion.RemoveNotContained(unitsIds);
+			products.RemoveNotContained(unitsIds);
+			prepare.RemoveNotContained(unitsIds);
+			outputs.RemoveNotContained(unitsIds);
 
-			lastVersion.RemoveWhere(NotContainedId);
-			products.RemoveWhere(NotContainedId);
-			prepare.RemoveWhere(NotContainedId);
-			outputs.RemoveWhere(NotContainedId);
+			if (inSubs)
+				foreach ((Graph subGraph, TileData subData) in Graph.AllGraphsDatas(graph,this))
+					subData.ClearStray(subGraph, inSubs:inSubs);
 		}
 
 

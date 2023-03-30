@@ -27,9 +27,8 @@ namespace MapMagic.Nodes
 		[NonSerialized] public Exposed exposed = new Exposed();
 		[NonSerialized] public Override defaults = new Override();
 
-		public ulong changeVersion; //increases each time after change from gui. Used to copy function userGraph only when changed.
-		public int serializedVersion = 0; //displayed in graph inspector
-		public int instanceId; //cached instanceId during serialization
+		public int serializedVersion = 0; //mapmagic version graph was last serialized to update it
+//		public int instanceId; //cached instanceId during serialization
 
 		public static Action<Generator, TileData> OnBeforeNodeCleared;
 		public static Action<Generator, TileData> OnAfterNodeGenerated;
@@ -42,14 +41,16 @@ namespace MapMagic.Nodes
 		public Vector2 guiMiniPos = new Vector2(20,20);
 		public Vector2 guiMiniAnchor = new Vector2(0,0);
 
+		#if MM_DEBUG
 		public bool debugGenerate = true;
 		public bool debugGenInfo = false;
 		public bool debugGraphBackground = true;
 		public float debugGraphBackColor = 0.5f;
 		public bool debugGraphFps = true;
 		public bool drawInSceneView = false;
+		#endif
 
-		public void OnEnable () => instanceId=GetInstanceID(); //GetInstanceID not allowed during serialization
+//		public void OnEnable () => instanceId=GetInstanceID(); //GetInstanceID not allowed during serialization
 
 		public static Graph Create (Graph src=null, bool inThread=false)
 		{
@@ -638,6 +639,27 @@ namespace MapMagic.Nodes
 			}
 
 
+			public ulong IdsVersions ()
+			/// Practically unique identifier that describes this graph and it's current state.
+			/// Used to update functions and clusters only when graph changed
+			/// Summary of all generator ids + versions + seed. 
+			{
+				ulong ids = 0;
+				ulong versions = 0;
+				foreach (Generator gen in generators)
+				{
+					ids += gen.id;
+					versions += gen.version;
+
+					if (gen is IMultiLayer multGen)
+						foreach (IUnit layer in multGen.Layers)
+							ids += layer.Id;
+				}
+
+				return (ulong)(random.Seed<<24) + ids + versions;
+			}
+
+
 			public IEnumerable<Graph> SubGraphs (bool recursively=false)
 			/// Enumerates in all child graphs recursively
 			{
@@ -712,14 +734,14 @@ namespace MapMagic.Nodes
 
 			//And all the stuff that takes data into account
 
-			public bool ClearChanged (TileData data)
+			public bool ClearChanged (TileData data, bool totalRebuild=false)
 			/// Removes ready state if any of prev gens is not ready
 			/// Clears all relevants if prior generator is clear
 			{
 				RefreshInputHashIds();
 
 				//clearing nodes that are not in graph
-				data.RemoveNotContained(this);
+				data.ClearStray(this);
 
 				Dictionary<Generator,bool> processed = new Dictionary<Generator,bool>();
 				//using processed instead of ready since non-ready generators should be cleared too - they might have NonReady-ReadyOutdated-NonReady chanis
@@ -727,13 +749,13 @@ namespace MapMagic.Nodes
 				//clearing graph nodes
 				bool allReady = true;
 				foreach (Generator relGen in RelevantGenerators(data.isDraft))
-					allReady = allReady & ClearChangedRecursive(relGen, data, processed);
+					allReady = allReady & ClearChangedRecursive(relGen, data, processed, totalRebuild);
 				
 				return allReady;
 			}
 
 
-			private bool ClearChangedRecursive (Generator gen, TileData data, Dictionary<Generator,bool> processed)
+			private bool ClearChangedRecursive (Generator gen, TileData data, Dictionary<Generator,bool> processed, bool totalRebuild=false)
 			/// Removes ready state if any of prev gens is not ready, per-gen
 			/// Will iterate at least once all the nodes, even if they were not changed
 			{
@@ -751,7 +773,7 @@ namespace MapMagic.Nodes
 
 						bool inletReady; //loading from lut or clearing recursive
 						if (!processed.TryGetValue(gen, out inletReady))
-							inletReady = ClearChangedRecursive(precedingGen, data, processed);
+							inletReady = ClearChangedRecursive(precedingGen, data, processed, totalRebuild);
 
 						ready = ready && inletReady;
 					}
@@ -767,7 +789,7 @@ namespace MapMagic.Nodes
 
 							bool inletReady; //loading from lut or clearing recursive
 							if (!processed.TryGetValue(gen, out inletReady))
-								inletReady = ClearChangedRecursive(precedingGen, data, processed);
+								inletReady = ClearChangedRecursive(precedingGen, data, processed, totalRebuild);
 
 							ready = ready && inletReady;
 							//no break, need to check-clear other layers chains
@@ -777,7 +799,7 @@ namespace MapMagic.Nodes
 				if (gen is ICustomDependence customDepGen)
 					foreach (Generator priorGen in customDepGen.PriorGens())
 					{
-						ClearChangedRecursive(priorGen, data, processed);
+						ClearChangedRecursive(priorGen, data, processed, totalRebuild);
 
 						if (!data.IsReady(priorGen))
 							{ ready = false; break; }  //was ready=true. Mistake?
@@ -785,7 +807,7 @@ namespace MapMagic.Nodes
 
 				if (gen is ICustomClear cgen)
 				{
-					cgen.OnClearing(this, data, ref ready);
+					cgen.OnClearing(this, data, ref ready, totalRebuild);
 					//cgen.ClearRecursive(data);
 					//ready = data.IsReady(gen);
 				}	
@@ -925,16 +947,14 @@ namespace MapMagic.Nodes
 					cGen = (Generator)Assigner.CopyAndAssign(gen, exposed, ovd);
 
 				//generating
-				#if MM_DEBUG
-				//Log.Add($"Generating {cGen.GetType().Name} (draft:{data.isDraft})"); //too many nodes to show
-				#endif
-
 				cGen.Generate(data, stop);
 
-				//checking time
+				//debug data
+				#if MM_DEBUG
 				long deltaTime = System.Diagnostics.Stopwatch.GetTimestamp() - startTime;
 				if (data.isDraft) gen.draftTime = 1000.0 * deltaTime / System.Diagnostics.Stopwatch.Frequency;
 				else gen.mainTime = 1000.0 * deltaTime / System.Diagnostics.Stopwatch.Frequency;
+				#endif
 
 				//marking ready 
 				if (stop!=null && stop.stop) return;
@@ -1041,10 +1061,10 @@ namespace MapMagic.Nodes
 			}
 
 
-			public static IEnumerable<(Graph,TileData)> SubGraphsDatas (Graph rootGraph, TileData rootData)
-			/// Includes root level graph-data as well
+			public static IEnumerable<(Graph,TileData)> AllGraphsDatas (Graph rootGraph, TileData rootData, bool includeSelf=false)
 			{
-				yield return (rootGraph, rootData);
+				if (includeSelf)
+					yield return (rootGraph, rootData);
 
 				foreach (IBiome biome in rootGraph.UnitsOfType<IBiome>()) //top level first
 				{
@@ -1052,11 +1072,11 @@ namespace MapMagic.Nodes
 					if (subGraph == null)
 						continue;
 
-					TileData subData = rootData.GetSubData(biome.Id);
+					TileData subData = biome.SubData(rootData);
 					if (subData == null)
 						continue;
 
-					foreach ((Graph,TileData) subSub in SubGraphsDatas(subGraph, subData))
+					foreach ((Graph,TileData) subSub in AllGraphsDatas(subGraph, subData))
 						yield return subSub;
 				}
 			}

@@ -146,7 +146,8 @@ namespace Den.Tools
 				{
 					//finding objects with tag
 					GameObject[] taggedObjects = null;
-					if (genAroundTag!=null && genAroundTag.Length!=0) taggedObjects = GameObject.FindGameObjectsWithTag(genAroundTag);
+					if (genAroundObjsTag) 
+						taggedObjects = GameObject.FindGameObjectsWithTag(genAroundTag);
 
 					//calculating cams array length and rescaling it
 					int camsLength = 0;

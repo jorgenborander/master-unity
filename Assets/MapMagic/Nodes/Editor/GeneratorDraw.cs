@@ -143,8 +143,6 @@ namespace MapMagic.Nodes.GUI
 				if (Cell.current.valChanged)
 				{
 					gen.version ++;
-					graph.changeVersion++;
-
 					GraphWindow.current?.RefreshMapMagic();
 				}
 			}
@@ -456,31 +454,31 @@ namespace MapMagic.Nodes.GUI
 					if (gen.guiDebug)
 					{
 						using (Cell.LineStd) Draw.Label("Id: " + Id.ToString(gen.id));
-						using (Cell.LineStd) Draw.Label(gen.id.ToString());
+						//using (Cell.LineStd) Draw.Label(gen.id.ToString());
 
+						Cell.EmptyLinePx(5);
+						using (Cell.LineStd) Draw.DualLabel("Version GUI:", gen.version.ToString());
 
-						TileData previewData = null;
-						if (GraphWindow.current.mapMagic is MapMagicObject mapMagicObject) 
-							previewData = mapMagicObject?.PreviewData;
+						TileData lastData = null;
+						if (GraphWindow.current.mapMagic is MapMagicObject mapMagicObject) //trying to use preview data for consistency
+							lastData = mapMagicObject?.PreviewData;
 
-						if (previewData != null)
+						if (lastData != null) 
 						{
 							Graph rootGraph = GraphWindow.current.mapMagic.Graph;
 
-							foreach ((Graph subGraph, TileData subData) in Graph.SubGraphsDatas(rootGraph,previewData))
+							foreach ((Graph subGraph, TileData subData) in Graph.AllGraphsDatas(rootGraph,lastData,includeSelf:true))
 							{
 								if (!subGraph.ContainsGenerator(gen))
 									continue;
 
-								Cell.EmptyLinePx(5);
-								using (Cell.LineStd) Draw.DualLabel("Version GUI", gen.version.ToString());
 								ulong? dataVersion = subData.Version(gen);
-								using (Cell.LineStd) Draw.DualLabel("Version Data", dataVersion!=null ? dataVersion.Value.ToString() : "N/A"); 
+								using (Cell.LineStd) Draw.DualLabel("Version Data:", dataVersion!=null ? dataVersion.Value.ToString() : "N/A"); 
 								using (Cell.LineStd) Draw.Toggle(subData.IsReady(gen), "Ready");
 
 								Cell.EmptyLinePx(5);
 								if (gen is ICustomComplexity)
-									using (Cell.LineStd) Draw.DualLabel("Progress", subData.GetProgress((ICustomComplexity)gen).ToString());
+									using (Cell.LineStd) Draw.DualLabel("Progress:", subData.GetProgress((ICustomComplexity)gen).ToString());
 								if (gen is IOutlet<object> outlet)
 								{
 									object product = subData.ReadOutletProduct(outlet);
@@ -490,7 +488,7 @@ namespace MapMagic.Nodes.GUI
 										int hashCode = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(product);
 										hashString = Convert.ToBase64String( BitConverter.GetBytes(hashCode) );
 									}
-									using (Cell.LineStd) Draw.DualLabel("Product", hashString);
+									using (Cell.LineStd) Draw.DualLabel("Product:", hashString);
 								}
 							}
 						}
@@ -498,10 +496,11 @@ namespace MapMagic.Nodes.GUI
 							using (Cell.LineStd) Draw.Label("No preview data");
 
 
-						using (Cell.LineStd) Draw.DualLabel("Time Draft", gen.draftTime.ToString("0.00") + "ms");
-						using (Cell.LineStd) Draw.DualLabel("Time Main", gen.mainTime.ToString("0.00") + "ms");
+						using (Cell.LineStd) Draw.DualLabel("Time Draft:", gen.draftTime.ToString("0.00") + "ms");
+						using (Cell.LineStd) Draw.DualLabel("Time Main:", gen.mainTime.ToString("0.00") + "ms");
 					}
 		}
+
 		#endif
 
 
@@ -907,7 +906,7 @@ namespace MapMagic.Nodes.GUI
 			}
 
 			#if MM_DEBUG
-			if (graph.debugGenInfo)
+			//if (graph.debugGenInfo)
 				DrawDebug(gen);
 			#endif
 

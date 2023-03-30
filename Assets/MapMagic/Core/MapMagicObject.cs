@@ -217,7 +217,6 @@ namespace MapMagic.Core
 			/// If clearAll then clears all and generates from scratch
 			{
 				if (graph == null) return;
-				graph.changeVersion++; //TODO: increment on drawing generator
 
 				ClearChanged(clearAll);
 
@@ -238,10 +237,10 @@ namespace MapMagic.Core
 					}
 
 					if (tile.main?.data!=null) 
-						graph.ClearChanged(tile.main.data);
+						graph.ClearChanged(tile.main.data, clearAll);
 					
 					if (tile.draft?.data!=null) 
-						graph.ClearChanged(tile.draft.data);
+						graph.ClearChanged(tile.draft.data, clearAll);
 				}
 			}
 

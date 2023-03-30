@@ -347,7 +347,6 @@ namespace MapMagic.Nodes.MatrixGenerators
 					foreach (Import200 gen in mapMagic.graph.GeneratorsOfType<Import200>())
 					{
 						if (gen.matrixAsset == ma) 
-							gen.version++;
 						{
 							gen.version++;
 
