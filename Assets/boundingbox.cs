@@ -45,15 +45,16 @@ public class boundingbox : MonoBehaviour
 
         Vector3 minPosX = Vector3.one * float.PositiveInfinity;
         Vector3 minPosZ = Vector3.one * float.PositiveInfinity;
-        for(int i = 0; i < vertices.Length; i++)
-        {
-            var v = Quaternion.Euler(90f, 0f, 0f) * vertices[i];
-            v = localToWorld.MultiplyPoint3x4(v);
-            Debug.DrawLine(camera.transform.position, v, Color.green);
-            if (v.x < minPosX.x) minPosX = v;
-            if (v.z < minPosZ.z) minPosZ = v;
-            if (v.x > maxPosX.x) maxPosX = v;        
-            if (v.z > maxPosZ.z) maxPosZ = v;
+        for(int i = 0; i<vertices.Length; i+=2){
+            var point = Quaternion.Euler(90f, 0f, 0f) * vertices[i];
+            point = localToWorld.MultiplyPoint3x4(point);
+
+            if (Physics.Linecast(camera.transform.position, point, out RaycastHit hitInfo))
+            {
+                Debug.DrawLine(camera.transform.position, hitInfo.point);
+            } else {
+                Debug.DrawLine(camera.transform.position, point);
+            }
         }
 
         //var centerBounds = GetComponent<Camera>().WorldToScreenPoint(bounds.center);
